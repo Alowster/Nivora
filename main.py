@@ -176,7 +176,6 @@ class IslandWindow(QWidget):
                 self.chat_window.show()
                 self.chat_window.input_field.setFocus()
 
-
     def on_menu_clicked(self):
         """Muestra menú contextual"""
         menu = QMenu(self)
@@ -191,8 +190,6 @@ class IslandWindow(QWidget):
         exit_action.triggered.connect(QApplication.instance().quit)
 
         menu.exec(self.menu_button.mapToGlobal(self.menu_button.rect().center()) - QPoint(menu.sizeHint().width() // 2, (-self.menu_button.height() - 20) // 2))
-
-
 
 def main():
     """Función principal de la aplicación"""
@@ -210,7 +207,6 @@ def main():
     print("Aplicación Island iniciada")
 
     sys.exit(app.exec())
-
 
 if __name__ == '__main__':
     main()
