@@ -1,0 +1,106 @@
+/* styles.qss - Estilos para la aplicación Island */
+
+/* Botón con gradiente (primer botón) */
+.GradientButton {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #4A90E2, stop:0.5 #7B68EE, stop:1 #9B59B6);
+    border: none;
+    border-radius: 26px;
+}
+
+.GradientButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #5AA0F2, stop:0.5 #8B78FE, stop:1 #AB69C6);
+}
+
+.GradientButton:pressed {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #3A80D2, stop:0.5 #6B58DE, stop:1 #8B49A6);
+}
+
+/* Botones con contorno (botones 2 y 3) */
+.OutlineButton {
+    background-color: rgba(50, 50, 55, 150);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-radius: 26px;
+}
+
+.OutlineButton:hover {
+    background-color: rgba(60, 60, 65, 180);
+    border: 2px solid rgba(255, 255, 255, 0.25);
+}
+
+.OutlineButton:pressed {
+    background-color: rgba(70, 70, 75, 200);
+    border: 2px solid rgba(255, 255, 255, 0.35);
+}
+
+/* Botón de menú */
+.MenuButton {
+    background-color: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 24px;
+    font-weight: bold;
+    padding-bottom: 5px;
+}
+
+.MenuButton:hover {
+    color: rgba(255, 255, 255, 0.8);
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 22px;
+}
+
+.MenuButton:pressed {
+    color: rgba(255, 255, 255, 1);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+QMenu {
+    border-radius: 8px;
+    background-color: rgba(40, 40, 45, 230);
+    border: 2px solid #333333;
+}
+
+QMenu::item {
+    color: white;
+    padding: 8px 15px;
+    border-radius: 4px;
+}
+
+QMenu::item:selected {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+ChatPopup {
+    background: transparent;
+}
+
+/* Campo de texto (Input) */
+QLineEdit {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+    border-radius: 22px; /* Muy redondeado */
+    padding-left: 15px;
+    border: 1px solid #333333;
+    font-size: 13px;
+}
+
+/* Botones circulares con gradiente */
+QPushButton {
+    border-radius: 20px;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                                stop:0 #4facfe, stop:1 #a800ff);
+    border: none;
+}
+
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                                stop:0 #5fcfff, stop:1 #b920ff);
+}
+
+/* El segundo botón (Cámara) suele ser un poco distinto o igual */
+QPushButton#btn_extra {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                                stop:0 #6a11cb, stop:1 #2575fc);
+}
