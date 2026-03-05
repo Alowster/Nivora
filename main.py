@@ -1,21 +1,18 @@
-"""
-main.py - Aplicación Island Window
-Una ventana flotante tipo "Dynamic Island" con diseño modular
-"""
-
 import sys
 import os
+import subprocess
 from PySide6.QtWidgets import (QApplication, QWidget, QPushButton,
                                QHBoxLayout, QGraphicsDropShadowEffect,
                                QMenu, QSystemTrayIcon)
 from PySide6.QtCore import Qt, QPoint
 from PySide6.QtGui import (QPainter, QColor, QPen, QBrush, QPainterPath,
                            QRegion, QIcon)
-from chat_panel import ChatPopup
+from ui.chat_panel import ChatPopup
 from ui_utils import create_icon_button, create_svg_icon
 
 import config
 import icons
+from core.db import init_db
 
 
 class IslandWindow(QWidget):
@@ -191,10 +188,24 @@ class IslandWindow(QWidget):
 
         menu.exec(self.menu_button.mapToGlobal(self.menu_button.rect().center()) - QPoint(menu.sizeHint().width() // 2, (-self.menu_button.height() - 20) // 2))
 
+def ensure_ollama_running():
+    result = subprocess.run(["tasklist"], capture_output=True, text=True)
+    if "ollama.exe" not in result.stdout:
+        subprocess.Popen(["ollama", "serve"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def kill_ollama():
+    subprocess.run(["taskkill", "/F", "/IM", "ollama.exe"], capture_output=True)
+
+
 def main():
     """Función principal de la aplicación"""
+    init_db()
+
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
+    ensure_ollama_running()
+    app.aboutToQuit.connect(kill_ollama)
 
     window = IslandWindow()
     window.show()
