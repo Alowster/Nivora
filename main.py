@@ -7,7 +7,10 @@ from PySide6.QtWidgets import (QApplication, QWidget, QPushButton,
 from PySide6.QtCore import Qt, QPoint
 from PySide6.QtGui import (QPainter, QColor, QPen, QBrush, QPainterPath,
                            QRegion, QIcon)
-from ui.chat_panel import ChatPopup
+from ui.popup_panel import PopupPanel
+from ui.chat_content import ChatContent
+from ui.lista_content import ListaContent
+from ui.macros_content import MacrosContent
 from ui_utils import create_icon_button, create_svg_icon
 
 import config
@@ -67,6 +70,18 @@ class IslandWindow(QWidget):
 
         self.setLayout(main_layout)
 
+        # Panel popup compartido y contenidos
+        self.popup = PopupPanel()
+        self.chat_content = ChatContent()
+        self.lista_content = ListaContent()
+        self.macros_content = MacrosContent()
+
+        self._content_map = {
+            "chat": (self.chat_content, self.button1),
+            "lista": (self.lista_content, self.button2),
+            "macros": (self.macros_content, self.button3),
+        }
+
         # Aplicar sombra
         self.apply_shadow()
 
@@ -92,6 +107,7 @@ class IslandWindow(QWidget):
         """Crea el botón de menú con 3 puntos verticales"""
         button = QPushButton()
         button.setFixedSize(config.MENU_BUTTON_WIDTH, config.BUTTON_SIZE)
+        button.setCursor(Qt.CursorShape.PointingHandCursor)
         button.setProperty("class", "MenuButton")
         button.setText("⋮")
         button.clicked.connect(self.on_menu_clicked)
@@ -150,28 +166,20 @@ class IslandWindow(QWidget):
 
     def on_button_clicked(self, button_name):
         """Maneja los clics en los botones principales"""
-        print(f"Botón presionado: {button_name}")
+        if button_name not in self._content_map:
+            return
+
+        content, _ = self._content_map[button_name]
+
+        if self.popup.isVisible() and self.popup._current_content is content:
+            self.popup.hide()
+            return
+
+        self.popup.set_content(content)
+        self.popup.show_below(self)
 
         if button_name == "chat":
-            if hasattr(self, 'chat_window') and self.chat_window.isVisible():
-                self.chat_window.hide()
-            else:
-                if not hasattr(self, 'chat_window') or not self.chat_window:
-                    self.chat_window = ChatPopup(self)
-                container = self.main_layout.parentWidget()
-                if container is None:
-                    container = self
-
-                menu_width = self.chat_window.width()
-
-                container_rect = container.rect()
-
-                target_x = container.mapToGlobal(container_rect.center()).x() - (menu_width // 2)
-                target_y = container.mapToGlobal(container_rect.bottomLeft()).y()
-
-                self.chat_window.move(target_x, target_y)
-                self.chat_window.show()
-                self.chat_window.input_field.setFocus()
+            self.chat_content.focus_input()
 
     def on_menu_clicked(self):
         """Muestra menú contextual"""

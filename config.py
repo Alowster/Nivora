@@ -47,6 +47,10 @@ GRADIENT_COLORS_PRESSED = {
     'end': '#8B49A6'
 }
 
+# IA
+OLLAMA_MODEL = "gemma3:4b"
+OLLAMA_MAX_TOKENS = 2000
+
 # Archivos de recursos
 STYLES_FILE = "styles.qss"
 ICONS_FILE = "icons.py"

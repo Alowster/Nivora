@@ -90,6 +90,15 @@ def get_send_icon():
     </svg>
     """
 
+def get_stop_icon():
+    """Icono de detener generación (cuadrado)"""
+    return """
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+        <rect x="9" y="9" width="14" height="14" rx="2"
+              fill="white" opacity="0.9"/>
+    </svg>
+    """
+
 def get_camera_icon():
     """Icono de cámara (estilo Instagram/Cámara moderna)"""
     return """

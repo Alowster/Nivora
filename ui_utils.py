@@ -23,6 +23,7 @@ def create_icon_button(svg_content, style_class, name, callback=None):
     button = QPushButton()
     button.setFixedSize(config.BUTTON_SIZE, config.BUTTON_SIZE)
     button.setProperty("class", style_class)
+    button.setCursor(Qt.CursorShape.PointingHandCursor)
 
     icon = create_svg_icon(svg_content)
     button.setIcon(icon)
