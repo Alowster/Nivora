@@ -82,7 +82,7 @@ class ListaContent(QWidget):
                 break
 
             btn = QPushButton(conv["name"])
-            btn.setProperty("class", "ConvButton")
+            btn.setProperty("class", "TaskItem")
             btn.setCursor(Qt.CursorShape.PointingHandCursor)
             self.lista_layout.addWidget(btn)
 

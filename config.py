@@ -49,7 +49,7 @@ GRADIENT_COLORS_PRESSED = {
 
 # IA
 OLLAMA_MODEL = "gemma3:4b"
-OLLAMA_MAX_TOKENS = 2000
+OLLAMA_MAX_TOKENS = 50000
 
 # Archivos de recursos
 STYLES_FILE = "styles.qss"

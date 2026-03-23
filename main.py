@@ -6,7 +6,7 @@ from PySide6.QtWidgets import (QApplication, QWidget, QPushButton,
                                QMenu, QSystemTrayIcon)
 from PySide6.QtCore import Qt, QPoint
 from PySide6.QtGui import (QPainter, QColor, QPen, QBrush, QPainterPath,
-                           QRegion, QIcon)
+                           QIcon)
 from ui.popup_panel import PopupPanel
 from ui.chat_content import ChatContent
 from ui.lista_content import ListaContent
@@ -16,7 +16,6 @@ from ui_utils import create_icon_button, create_svg_icon
 import config
 import icons
 from core.db import init_db
-
 
 class IslandWindow(QWidget):
     def __init__(self):
@@ -69,6 +68,7 @@ class IslandWindow(QWidget):
         main_layout.addWidget(self.menu_button)
 
         self.setLayout(main_layout)
+        self.setProperty("class", "IslandPill")
 
         # Panel popup compartido y contenidos
         self.popup = PopupPanel()
@@ -149,8 +149,6 @@ class IslandWindow(QWidget):
         painter.setBrush(Qt.NoBrush)
         painter.drawPath(inner_path)
 
-        region = QRegion(path.toFillPolygon().toPolygon())
-        self.setMask(region)
 
     def mousePressEvent(self, event):
         """Permite arrastrar la ventana"""
@@ -215,13 +213,13 @@ def main():
     ensure_ollama_running()
     app.aboutToQuit.connect(kill_ollama)
 
-    window = IslandWindow()
-    window.show()
-
     style_path = os.path.join(os.path.dirname(__file__), config.STYLES_FILE)
     if os.path.exists(style_path):
         with open(style_path, 'r') as f:
             app.setStyleSheet(f.read())
+
+    window = IslandWindow()
+    window.show()
 
     print("Aplicación Island iniciada")
 

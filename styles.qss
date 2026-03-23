@@ -1,128 +1,358 @@
-/* styles.qss - Estilos para la aplicación Island */
+/* =============================================================
+   styles.qss — Nivora · Sistema de clases glassmorphism
+   =============================================================
 
-/* Botón con gradiente (primer botón) */
+   ARQUITECTURA DE CLASES
+   ──────────────────────
+   TOKENS BASE (valores compartidos que se repiten deliberadamente)
+     bg-glass:    rgba(255,255,255, 0.06)
+     bg-glass-h:  rgba(255,255,255, 0.11)   hover
+     bg-glass-p:  rgba(255,255,255, 0.16)   pressed
+     border-1:    rgba(255,255,255, 0.11)
+     border-2:    rgba(255,255,255, 0.22)   hover
+     accent:      rgba(123,104,238, ...)    acento morado
+     radius-pill: 40px  / radius-panel: 20px  / radius-item: 12px
+
+   CONTENEDORES
+     IslandPill   → .IslandPill    barra píldora flotante
+     PopupPanel   → .PopupPanel    panel desplegable
+     GlassMenu    → QMenu          menú contextual
+
+   BOTONES  (base IslandBtn + modificadores)
+     --gradient   → .GradientButton    botón primario (chat)
+     --outline    → .OutlineButton     botones secundarios (lista, macros)
+     --ghost      → .MenuButton        menú ⋮ invisible
+
+   ITEMS DE PANEL  (base PanelItem + variantes)
+     base         → .PanelItem / .ConvButton   fila o card genérica
+     --chat-ai    → .MsgAI             burbuja de respuesta IA
+     --chat-user  → .MsgUser           burbuja de mensaje usuario
+     --task       → .TaskItem          fila de tarea (lista)
+     --macro      → .MacroItem         fila de macro
+
+   CONTROLES
+     GlassInput   → QLineEdit          campo de texto
+     NavBtn       → .NavButton         flechas paginación
+     SendBtn      → QPushButton        botón circular enviar/stop
+     StatusDot    → .StatusDot[--active|--busy|--error]
+   ============================================================= */
+
+
+/* =============================================================
+   CONTENEDORES
+   ============================================================= */
+
+/* IslandPill – la barra píldora (el fondo real se dibuja en paintEvent,
+   este selector aplica si se usan QWidgets hijos con la clase) */
+.IslandPill {
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    border-radius: 40px;
+}
+
+/* PopupPanel – panel flotante bajo la píldora */
+.PopupPanel {
+    background-color: rgba(18, 18, 30, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 20px;
+}
+
+/* Alias para compatibilidad con el código actual */
+ChatPopup {
+    background: transparent;
+}
+
+QScrollArea {
+    background: transparent;
+    border: none;
+}
+
+QScrollArea > QWidget {
+    background: transparent;
+}
+
+/* GlassMenu – QMenu contextual */
+QMenu {
+    background-color: rgba(14, 14, 24, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 14px;
+    padding: 5px;
+}
+
+QMenu::item {
+    color: rgba(255, 255, 255, 0.72);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+QMenu::item:selected {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.95);
+}
+
+QMenu::separator {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.07);
+    margin: 4px 10px;
+}
+
+
+/* =============================================================
+   BOTONES — base IslandBtn + modificadores
+   ============================================================= */
+
+/* Base compartida: todos los botones de la isla heredan estos tokens */
+.GradientButton,
+.OutlineButton,
+.MenuButton {
+    border-radius: 26px;
+    border: 1px solid rgba(255, 255, 255, 0.11);
+}
+
+/* --gradient: botón primario con gradiente (chat) */
 .GradientButton {
     background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
         stop:0 #4A90E2, stop:0.5 #7B68EE, stop:1 #9B59B6);
-    border: none;
-    border-radius: 26px;
+    border-color: rgba(255, 255, 255, 0.20);
 }
 
 .GradientButton:hover {
     background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
         stop:0 #5AA0F2, stop:0.5 #8B78FE, stop:1 #AB69C6);
+    border-color: rgba(255, 255, 255, 0.30);
 }
 
 .GradientButton:pressed {
     background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
         stop:0 #3A80D2, stop:0.5 #6B58DE, stop:1 #8B49A6);
+    border-color: rgba(255, 255, 255, 0.15);
 }
 
-/* Botones con contorno (botones 2 y 3) */
+/* --outline: botones secundarios translúcidos (lista, macros) */
 .OutlineButton {
-    background-color: rgba(50, 50, 55, 150);
-    border: 2px solid rgba(255, 255, 255, 0.15);
-    border-radius: 26px;
+    background-color: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.11);
 }
 
 .OutlineButton:hover {
-    background-color: rgba(60, 60, 65, 180);
-    border: 2px solid rgba(255, 255, 255, 0.25);
+    background-color: rgba(255, 255, 255, 0.11);
+    border-color: rgba(255, 255, 255, 0.22);
 }
 
 .OutlineButton:pressed {
-    background-color: rgba(70, 70, 75, 200);
-    border: 2px solid rgba(255, 255, 255, 0.35);
+    background-color: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.30);
 }
 
-/* Botón de menú */
+/* --ghost: botón de menú ⋮, sin fondo ni borde */
 .MenuButton {
     background-color: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 24px;
+    color: rgba(255, 255, 255, 0.38);
+    font-size: 22px;
     font-weight: bold;
-    padding-bottom: 5px;
+    padding-bottom: 4px;
 }
 
 .MenuButton:hover {
-    color: rgba(255, 255, 255, 0.8);
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.06);
     border-radius: 22px;
+    color: rgba(255, 255, 255, 0.75);
 }
 
 .MenuButton:pressed {
-    color: rgba(255, 255, 255, 1);
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.10);
+    color: rgba(255, 255, 255, 1.0);
 }
 
-QMenu {
-    border-radius: 8px;
-    background-color: rgba(40, 40, 45, 230);
-    border: 2px solid #333333;
+
+/* =============================================================
+   ITEMS DE PANEL — base PanelItem + variantes por panel
+   ============================================================= */
+
+/* Base compartida: cualquier fila, card o botón de conversación */
+.PanelItem,
+.ConvButton {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 13px;
+    padding: 8px 13px;
+    text-align: left;
 }
 
-QMenu::item {
-    color: white;
-    padding: 8px 15px;
-    border-radius: 4px;
+.PanelItem:hover,
+.ConvButton:hover {
+    background-color: rgba(255, 255, 255, 0.09);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.90);
 }
 
-QMenu::item:selected {
-    background-color: rgba(255, 255, 255, 0.1);
+.PanelItem:pressed,
+.ConvButton:pressed {
+    background-color: rgba(123, 104, 238, 0.14);
+    border-color: rgba(123, 104, 238, 0.28);
 }
 
-ChatPopup {
+/* AIBubble — QTextEdit de streaming */
+QTextEdit#AIBubble {
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.80);
+    font-size: 13px;
+    padding: 8px 12px;
+}
+
+QTextEdit#AIBubble QScrollBar:horizontal {
+    height: 6px;
     background: transparent;
 }
 
-/* Campo de texto (Input) */
-QLineEdit {
-    background-color: #1e1e1e;
-    color: #e0e0e0;
-    border-radius: 22px; /* Muy redondeado */
-    padding-left: 15px;
-    border: 1px solid #333333;
+QTextEdit#AIBubble QScrollBar::handle:horizontal {
+    background: rgba(255, 255, 255, 60);
+    border-radius: 3px;
+}
+
+QTextEdit#AIBubble QScrollBar::add-line:horizontal,
+QTextEdit#AIBubble QScrollBar::sub-line:horizontal {
+    width: 0px;
+}
+
+/* --chat-ai: burbuja de respuesta del modelo */
+QLabel#MsgAI {
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.80);
     font-size: 13px;
 }
 
-/* Botones circulares con gradiente */
-QPushButton {
+/* --chat-user: burbuja del mensaje del usuario */
+QLabel#MsgUser {
+    background-color: rgba(123, 104, 238, 0.18);
+    border: 1px solid rgba(123, 104, 238, 0.25);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.90);
+    font-size: 13px;
+}
+
+/* --task: fila de tarea en el panel de lista
+   Misma base que PanelItem, + estado :checked para completada */
+.TaskItem {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 13px;
+    padding: 9px 13px;
+    text-align: left;
+}
+
+.TaskItem:hover {
+    background-color: rgba(255, 255, 255, 0.09);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.TaskItem:checked {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.32);
+}
+
+/* --macro: fila de macro, igual que TaskItem pero acento azul-cian al activar */
+.MacroItem {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 13px;
+    padding: 9px 13px;
+    text-align: left;
+}
+
+.MacroItem:hover {
+    background-color: rgba(255, 255, 255, 0.09);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.MacroItem:pressed {
+    background-color: rgba(79, 172, 254, 0.14);
+    border-color: rgba(79, 172, 254, 0.28);
+}
+
+
+/* =============================================================
+   CONTROLES
+   ============================================================= */
+
+/* GlassInput — QLineEdit del chat */
+QLineEdit {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.10);
     border-radius: 20px;
+    color: rgba(255, 255, 255, 0.80);
+    font-size: 13px;
+    padding-left: 15px;
+    selection-background-color: rgba(123, 104, 238, 0.40);
+}
+
+QLineEdit:focus {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: rgba(123, 104, 238, 0.50);
+}
+
+/* NavBtn — flechas de paginación */
+.NavButton {
     background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
                                 stop:0 #4facfe, stop:1 #a800ff);
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    max-height: 22px;
+    max-width: 28px;
+    padding: 0px 10px 3px 10px;
+}
+
+.NavButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                                stop:0 #5fcfff, stop:1 #b920ff);
+}
+
+.NavButton:pressed {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                                stop:0 #3f9fdf, stop:1 #9900dd);
+}
+
+.NavButton:disabled {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.25);
+}
+
+/* SendBtn — botón circular de enviar / stop (QPushButton genérico) */
+QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                                stop:0 #4facfe, stop:1 #a800ff);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
 }
 
 QPushButton:hover {
     background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
                                 stop:0 #5fcfff, stop:1 #b920ff);
+    border-color: rgba(255, 255, 255, 0.22);
 }
 
-/* El segundo botón (Cámara) suele ser un poco distinto o igual */
-.NavButton {
-    border-radius: 6px;
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #4facfe, stop:1 #a800ff);
-    border: none;
-    padding: 0px 10px 3px 10px;
-    color: white;
-    font-size: 14px;
-    font-weight: bold;
-    max-width: 28px;
-    max-height: 22px;
-}
-
-.NavButton:hover {
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #5fcfff, stop:1 #b920ff);
-}
-
-.NavButton:pressed {
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #3f9fdf, stop:1 #9900dd);
-}
-
-.NavButton:disabled {
-    background: rgba(255, 255, 255, 30);
-    color: rgba(255, 255, 255, 80);
+QPushButton:pressed {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                                stop:0 #3f9fdf, stop:1 #9900dd);
 }
 
 QPushButton#btn_extra {
@@ -130,12 +360,87 @@ QPushButton#btn_extra {
                                 stop:0 #6a11cb, stop:1 #2575fc);
 }
 
-.ConvButton {
-  border-radius: 8px;
-  background-color: rgba(255, 255, 255, 15);
-  border: none;
-  padding: 6px 12px;
-  color: white;
-  font-size: 12px;
-  text-align: left;
+/* StatusDot — pequeño indicador de estado (QLabel o QWidget pequeño) */
+.StatusDot {
+    background-color: rgba(255, 255, 255, 0.30);
+    border-radius: 4px;
+    max-height: 8px;
+    max-width: 8px;
+    min-height: 8px;
+    min-width: 8px;
+}
+
+.StatusDot--active {
+    background-color: rgba(29, 158, 117, 0.90);
+}
+
+.StatusDot--busy {
+    background-color: rgba(239, 159, 39, 0.90);
+}
+
+.StatusDot--error {
+    background-color: rgba(226, 75, 74, 0.90);
+}
+
+
+/* =============================================================
+   SCROLLBAR
+   ============================================================= */
+
+QScrollBar:vertical {
+    background: transparent;
+    border-radius: 2px;
+    margin: 4px 2px;
+    width: 4px;
+}
+
+QScrollBar::handle:vertical {
+    background: rgba(255, 255, 255, 0.14);
+    border-radius: 2px;
+    min-height: 24px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: rgba(255, 255, 255, 0.26);
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+QScrollBar:horizontal {
+    background: transparent;
+    border-radius: 2px;
+    height: 4px;
+    margin: 2px 4px;
+}
+
+QScrollBar::handle:horizontal {
+    background: rgba(255, 255, 255, 0.14);
+    border-radius: 2px;
+    min-width: 24px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background: rgba(255, 255, 255, 0.26);
+}
+
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal {
+    width: 0px;
+}
+
+
+/* =============================================================
+   TOOLTIP
+   ============================================================= */
+
+QToolTip {
+    background-color: rgba(14, 14, 24, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.80);
+    font-size: 12px;
+    padding: 5px 10px;
 }

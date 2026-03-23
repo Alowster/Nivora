@@ -6,28 +6,8 @@ from ui_utils import create_icon_button
 from icons import get_send_icon, get_camera_icon, get_stop_icon
 from core.db import create_conversation, add_message, get_messages, rename_conversation, get_conversation_name
 from core.ai_worker import AIWorker
-
-AI_BUBBLE_STYLE = """
-    QTextEdit {
-        background-color: #3a3a3f;
-        color: white;
-        border-radius: 12px;
-        border: none;
-        padding: 8px 12px;
-        font-size: 13px;
-    }
-    QScrollBar:horizontal {
-        height: 6px;
-        background: transparent;
-    }
-    QScrollBar::handle:horizontal {
-        background: rgba(255,255,255,60);
-        border-radius: 3px;
-    }
-    QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
-        width: 0px;
-    }
-"""
+from ui.region_selector import RegionSelector
+from core.ocr_worker import OcrWorker
 
 
 class ChatContent(QWidget):
@@ -40,6 +20,7 @@ class ChatContent(QWidget):
         self._render_timer.timeout.connect(self._flush_render)
         self.init_ui()
         self._actualizar_nombre()
+        self.ocr_context = None
 
     def init_ui(self):
         main_layout = QVBoxLayout(self)
@@ -67,7 +48,6 @@ class ChatContent(QWidget):
         self.scroll_area.setWidget(self.messages_widget)
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.scroll_area.setStyleSheet("background: transparent; border: none;")
         main_layout.addWidget(self.scroll_area)
 
         input_container = QHBoxLayout()
@@ -84,7 +64,7 @@ class ChatContent(QWidget):
 
         self.btn_extra = create_icon_button(
             get_camera_icon(), "GradientButton", "camara",
-            lambda name: print(f"Acción: {name}")
+            lambda name: self.iniciar_captura()
         )
         self.btn_extra.setObjectName("BtnExtra")
 
@@ -108,6 +88,22 @@ class ChatContent(QWidget):
     def focus_input(self):
         self.input_field.setFocus()
 
+    def iniciar_captura(self):
+        self.window().hide()
+        self.selector = RegionSelector()
+        self.selector.region_selected.connect(self.on_region_selected)
+
+    def on_region_selected(self, x, y, w, h):
+        self.window().show()
+        self.ocr_worker = OcrWorker(x, y, w, h)
+        self.ocr_worker.completed.connect(self.on_ocr_done)
+        self.ocr_worker.error.connect(lambda e: print(f"OCR error: {e}"))
+        self.ocr_worker.start()
+
+    def on_ocr_done(self, texto):
+        self.ocr_context = texto
+        self.input_field.setFocus()
+
     def _create_ai_bubble(self):
         bubble = QTextEdit()
         bubble.setReadOnly(True)
@@ -116,7 +112,8 @@ class ChatContent(QWidget):
         bubble.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
         bubble.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         bubble.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        bubble.setStyleSheet(AI_BUBBLE_STYLE)
+        bubble.setObjectName("AIBubble")
+        bubble.viewport().setStyleSheet("background: transparent;")
         return bubble
 
     def _update_bubble_height(self, bubble):
@@ -131,8 +128,9 @@ class ChatContent(QWidget):
             self.conversation_id = create_conversation()
             rename_conversation(self.conversation_id, texto[:45] + "..." if len(texto) > 45 else texto)
             self._actualizar_nombre()
+        has_capture = bool(self.ocr_context)
         add_message(self.conversation_id, "user", texto)
-        self.add_bubble(texto, "user")
+        self.add_bubble(texto, "user", has_capture=has_capture)
         self.input_field.clear()
         self.input_field.setEnabled(False)
 
@@ -141,6 +139,10 @@ class ChatContent(QWidget):
         self.messages_layout.addWidget(self.ai_bubble, alignment=Qt.AlignLeft)
 
         historial = get_messages(self.conversation_id)
+        if self.ocr_context:
+            system_msg = {"role": "system", "content": f"El usuario ha capturado esta región de pantalla. Texto extraído:\n---\n{self.ocr_context}\n---"}
+            historial = [system_msg] + historial
+            self.ocr_context = None
         self.worker = AIWorker(historial)
         self.worker.chunk_received.connect(self.on_chunk)
         self.worker.completed.connect(self.on_finished)
@@ -163,7 +165,7 @@ class ChatContent(QWidget):
         self.input_field.setEnabled(True)
         self.input_field.setFocus()
 
-    def add_bubble(self, text, role):
+    def add_bubble(self, text, role, has_capture=False):
         bubble = QLabel(text)
         bubble.setWordWrap(True)
         bubble.setFixedWidth(220)
@@ -173,18 +175,38 @@ class ChatContent(QWidget):
             Qt.TextInteractionFlag.TextSelectableByKeyboard
         )
         if role == "user":
-            bubble.setStyleSheet("background-color: #4A90E2; color: white; border-radius: 12px;")
+            bubble.setStyleSheet("background-color: rgba(123, 104, 238, 0.18); border: 1px solid rgba(123, 104, 238, 0.25); border-radius: 12px; color: rgba(255, 255, 255, 0.90); font-size: 13px;")
         else:
-            bubble.setStyleSheet("background-color: #3a3a3f; color: white; border-radius: 12px;")
+            bubble.setStyleSheet("background-color: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; color: rgba(255, 255, 255, 0.80); font-size: 13px;")
+
+        if role == "user" and has_capture:
+            from PySide6.QtWidgets import QHBoxLayout, QWidget as _W
+            row = _W()
+            row_layout = QHBoxLayout(row)
+            row_layout.setContentsMargins(0, 0, 0, 0)
+            row_layout.setSpacing(6)
+
+            badge = QLabel("📷")
+            badge.setFixedSize(24, 24)
+            badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            badge.setStyleSheet(
+                "background-color: rgba(123,104,238,0.30);"
+                "border: 1px solid rgba(123,104,238,0.50);"
+                "border-radius: 8px;"
+                "font-size: 13px;"
+            )
+            row_layout.addStretch()
+            row_layout.addWidget(badge)
+            row_layout.addWidget(bubble)
+            self.messages_layout.addWidget(row, alignment=Qt.AlignmentFlag.AlignRight)
+        elif role == "user":
+            self.messages_layout.addWidget(bubble, alignment=Qt.AlignmentFlag.AlignRight)
+        else:
+            self.messages_layout.addWidget(bubble, alignment=Qt.AlignmentFlag.AlignLeft)
 
         h = bubble.heightForWidth(220)
         if h > 0:
             bubble.setFixedHeight(h)
-
-        if role == "user":
-            self.messages_layout.addWidget(bubble, alignment=Qt.AlignRight)
-        else:
-            self.messages_layout.addWidget(bubble, alignment=Qt.AlignLeft)
 
         self.scroll_area.verticalScrollBar().setValue(
             self.scroll_area.verticalScrollBar().maximum()
