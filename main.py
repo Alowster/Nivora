@@ -82,6 +82,8 @@ class IslandWindow(QWidget):
             # "macros": (self.macros_content, self.button3),
         }
 
+        self.lista_content.conversation_selected.connect(self._abrir_conversacion)
+
         # Aplicar sombra
         self.apply_shadow()
 
@@ -178,6 +180,13 @@ class IslandWindow(QWidget):
 
         if button_name == "chat":
             self.chat_content.focus_input()
+        elif button_name == "lista":
+            self.lista_content.refresh()
+
+    def _abrir_conversacion(self, conv_id):
+        self.chat_content.load_conversation(conv_id)
+        self.popup.set_content(self.chat_content)
+        self.chat_content.focus_input()
 
     def on_menu_clicked(self):
         """Muestra menú contextual"""

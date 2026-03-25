@@ -1,5 +1,5 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QPushButton
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QPushButton, QScrollArea
+from PySide6.QtCore import Qt, Signal
 from core.db import get_all_conversations
 
 MESES_ES = {
@@ -9,6 +9,8 @@ MESES_ES = {
 }
 
 class ListaContent(QWidget):
+    conversation_selected = Signal(int)
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.layout_principal = QVBoxLayout(self)
@@ -36,12 +38,18 @@ class ListaContent(QWidget):
         fila.addWidget(self.btn_siguiente)
         self.layout_principal.addLayout(fila)
 
-        # Lista de conversaciones
-        self.lista_layout = QVBoxLayout()
+        # Lista de conversaciones dentro de un scroll area
+        self._lista_widget = QWidget()
+        self.lista_layout = QVBoxLayout(self._lista_widget)
         self.lista_layout.setSpacing(4)
-        self.layout_principal.addLayout(self.lista_layout)
+        self.lista_layout.setContentsMargins(0, 0, 0, 0)
+        self.lista_layout.addStretch()
 
-        self.layout_principal.addStretch()
+        self._scroll = QScrollArea()
+        self._scroll.setWidget(self._lista_widget)
+        self._scroll.setWidgetResizable(True)
+        self._scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.layout_principal.addWidget(self._scroll)
 
         self._actualizar_header()
 
@@ -69,22 +77,18 @@ class ListaContent(QWidget):
         self._mostrar_mes()
 
     def _mostrar_mes(self):
-        while self.lista_layout.count():
+        # Eliminar todos excepto el stretch del final
+        while self.lista_layout.count() > 1:
             item = self.lista_layout.takeAt(0)
             if item.widget():
                 item.widget().deleteLater()
         convs = self._grupos[self._meses[self._mes_idx]]
-
-        cot = 0
         for conv in convs:
-            cot += 1
-            if cot == 7:
-                break
-
             btn = QPushButton(conv["name"])
             btn.setProperty("class", "TaskItem")
             btn.setCursor(Qt.CursorShape.PointingHandCursor)
-            self.lista_layout.addWidget(btn)
+            btn.clicked.connect(lambda _, cid=conv["id"]: self.conversation_selected.emit(cid))
+            self.lista_layout.insertWidget(self.lista_layout.count() - 1, btn)
 
     def _mes_anterior(self):
         if self._mes_idx < len(self._meses) - 1:
@@ -95,3 +99,7 @@ class ListaContent(QWidget):
         if self._mes_idx > 0:
             self._mes_idx -= 1
             self._actualizar_header()
+
+    def refresh(self):
+        self.cargar_y_agrupar()
+        self._actualizar_header()

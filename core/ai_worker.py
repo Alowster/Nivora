@@ -11,20 +11,29 @@ class AIWorker(QThread):
         super().__init__()
         self.messages = messages
         self._stop_requested = False
+        self._stream = None
 
     def stop(self):
         self._stop_requested = True
+        if self._stream is not None:
+            try:
+                self._stream.close()
+            except Exception:
+                pass
 
     def run(self):
         try:
             mensajes = [{"role": m["role"], "content": m["content"]} for m in self.messages]
-            stream = ollama.chat(model=OLLAMA_MODEL, messages=mensajes, stream=True, options={"num_predict": OLLAMA_MAX_TOKENS})
-            for chunk in stream:
+            self._stream = ollama.chat(model=OLLAMA_MODEL, messages=mensajes, stream=True, options={"num_predict": OLLAMA_MAX_TOKENS})
+            for chunk in self._stream:
                 if self._stop_requested:
-                    return
+                    break
                 text = chunk["message"]["content"]
                 self.chunk_received.emit(text)
-            self.completed.emit()
+            else:
+                self.completed.emit()
         except Exception as e:
             if not self._stop_requested:
                 self.error.emit(str(e))
+        finally:
+            self._stream = None

@@ -110,13 +110,15 @@ class ChatContent(QWidget):
         bubble.setFixedWidth(260)
         bubble.setFixedHeight(36)
         bubble.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
-        bubble.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        bubble.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         bubble.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         bubble.setObjectName("AIBubble")
+        bubble.document().setDocumentMargin(12)
         bubble.viewport().setStyleSheet("background: transparent;")
         return bubble
 
     def _update_bubble_height(self, bubble):
+        bubble.document().setTextWidth(260)
         doc_height = int(bubble.document().size().height())
         bubble.setFixedHeight(doc_height + 20)
 
@@ -212,7 +214,45 @@ class ChatContent(QWidget):
             self.scroll_area.verticalScrollBar().maximum()
         )
 
+    def load_conversation(self, conversation_id):
+        self._render_timer.stop()
+        if hasattr(self, 'worker') and self.worker.isRunning():
+            self.worker.completed.disconnect()
+            self.worker.chunk_received.disconnect()
+            self.worker.error.disconnect()
+            self.worker.stop()
+        self.btn_stop.setVisible(False)
+        self.btn_enviar.setVisible(True)
+        self.input_field.setEnabled(True)
+
+        self.conversation_id = conversation_id
+        self._actualizar_nombre()
+
+        while self.messages_layout.count():
+            item = self.messages_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        for msg in get_messages(conversation_id):
+            if msg["role"] == "user":
+                self.add_bubble(msg["content"], "user")
+            else:
+                bubble = self._create_ai_bubble()
+                html = md.markdown(msg["content"], extensions=["fenced_code", "tables"])
+                bubble.setHtml(f'<div style="color:white;">{html}</div>')
+                self.messages_layout.addWidget(bubble, alignment=Qt.AlignLeft)
+                self._update_bubble_height(bubble)
+
     def nueva_conversacion(self):
+        self._render_timer.stop()
+        if hasattr(self, 'worker') and self.worker.isRunning():
+            self.worker.completed.disconnect()
+            self.worker.chunk_received.disconnect()
+            self.worker.error.disconnect()
+            self.worker.stop()
+        self.btn_stop.setVisible(False)
+        self.btn_enviar.setVisible(True)
+        self.input_field.setEnabled(True)
         self.conversation_id = None
         self._actualizar_nombre()
         while self.messages_layout.count():

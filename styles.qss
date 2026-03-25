@@ -203,7 +203,6 @@ QTextEdit#AIBubble {
     border-radius: 12px;
     color: rgba(255, 255, 255, 0.80);
     font-size: 13px;
-    padding: 8px 12px;
 }
 
 QTextEdit#AIBubble QScrollBar:horizontal {
