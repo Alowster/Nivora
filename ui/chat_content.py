@@ -88,6 +88,10 @@ class ChatContent(QWidget):
     def focus_input(self):
         self.input_field.setFocus()
 
+    def insertar_texto(self, texto):
+        self.input_field.setText(texto)
+        self.input_field.setFocus()
+
     def iniciar_captura(self):
         self.window().hide()
         self.selector = RegionSelector()

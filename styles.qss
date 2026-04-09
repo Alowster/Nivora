@@ -284,6 +284,34 @@ QLabel#MsgUser {
     border-color: rgba(79, 172, 254, 0.28);
 }
 
+.HotkeyBadge {
+    background-color: rgba(123, 104, 238, 0.20);
+    border: 1px solid rgba(123, 104, 238, 0.40);
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.80);
+    font-size: 11px;
+    padding: 2px 6px;
+}
+
+.HotkeyBadge:hover {
+    background-color: rgba(123, 104, 238, 0.35);
+    border-color: rgba(123, 104, 238, 0.60);
+}
+
+.HotkeyBadge--empty {
+    background-color: transparent;
+    border: 1px dashed rgba(255, 255, 255, 0.20);
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.30);
+    font-size: 11px;
+    padding: 2px 6px;
+}
+
+.HotkeyBadge--empty:hover {
+    border-color: rgba(255, 255, 255, 0.40);
+    color: rgba(255, 255, 255, 0.55);
+}
+
 
 /* =============================================================
    CONTROLES
@@ -379,6 +407,144 @@ QPushButton#btn_extra {
 
 .StatusDot--error {
     background-color: rgba(226, 75, 74, 0.90);
+}
+
+
+/* =============================================================
+   MACROS CONTENT — componentes internos del panel de macros
+   ============================================================= */
+
+/* MacroRow – fila de macro */
+MacroRow {
+    background-color: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 10px;
+}
+
+MacroRow:hover {
+    background-color: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.26);
+}
+
+/* MacroRowLabel – nombre de la macro dentro de la fila */
+.MacroRowLabel {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 13px;
+}
+
+/* TypeIcon – icono de tipo (📋 / ⚡) */
+.TypeIcon {
+    font-size: 12px;
+}
+
+/* DeleteButton – botón ✕ en cada MacroRow */
+.DeleteButton {
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    color: rgba(255, 255, 255, 0.30);
+    font-size: 12px;
+    padding: 0;
+}
+
+.DeleteButton:hover {
+    background: rgba(220, 60, 60, 0.15);
+    color: rgba(220, 60, 60, 0.90);
+}
+
+/* SectionLabel – etiquetas de sección pequeñas ("Nueva macro", "Mis macros") */
+.SectionLabel {
+    color: rgba(255, 255, 255, 0.50);
+    font-size: 11px;
+}
+
+/* DescLabel – texto descriptivo/hint bajo los toggles de tipo */
+.DescLabel {
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 10px;
+}
+
+/* GlassInput – QLineEdit de formulario (radio 8px, distinto al global 20px) */
+.GlassInput {
+    background-color: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 8px;
+    color: white;
+    padding-left: 10px;
+}
+
+.GlassInput:focus {
+    background-color: rgba(255, 255, 255, 0.18);
+    border-color: rgba(123, 104, 238, 0.65);
+}
+
+/* GlassTextEdit – QTextEdit de formulario */
+.GlassTextEdit {
+    background-color: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 8px;
+    color: white;
+    padding: 6px 10px;
+}
+
+.GlassTextEdit:focus {
+    background-color: rgba(255, 255, 255, 0.18);
+    border-color: rgba(123, 104, 238, 0.65);
+}
+
+/* HSeparator – línea horizontal separadora */
+.HSeparator {
+    background-color: rgba(255, 255, 255, 0.08);
+    border: none;
+    max-height: 1px;
+}
+
+/* EmptyLabel – estado vacío ("Sin macros. ¡Crea una arriba!") */
+.EmptyLabel {
+    color: rgba(255, 255, 255, 0.25);
+    font-size: 12px;
+}
+
+/* ToggleButton – botones de tipo "Pegar texto" / "Ejecutar" */
+.ToggleButton {
+    background-color: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 12px;
+}
+
+.ToggleButton:hover {
+    background-color: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.30);
+    color: rgba(255, 255, 255, 0.88);
+}
+
+.ToggleButton:checked {
+    background-color: rgba(123, 104, 238, 0.40);
+    border-color: rgba(123, 104, 238, 0.70);
+    color: rgba(255, 255, 255, 0.95);
+}
+
+/* AddButton – botón "Añadir macro" */
+.AddButton {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                                stop:0 #4facfe, stop:1 #a800ff);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    color: white;
+    font-size: 12px;
+}
+
+.AddButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                                stop:0 #5fcfff, stop:1 #b920ff);
+    border-color: rgba(255, 255, 255, 0.22);
+}
+
+.AddButton:pressed {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                                stop:0 #3f9fdf, stop:1 #9900dd);
 }
 
 

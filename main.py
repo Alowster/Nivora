@@ -10,7 +10,7 @@ from PySide6.QtGui import (QPainter, QColor, QPen, QBrush, QPainterPath,
 from ui.popup_panel import PopupPanel
 from ui.chat_content import ChatContent
 from ui.lista_content import ListaContent
-# from ui.macros_content import MacrosContent
+from ui.macros_content import MacrosContent
 from ui_utils import create_icon_button, create_svg_icon
 
 import config
@@ -74,12 +74,13 @@ class IslandWindow(QWidget):
         self.popup = PopupPanel()
         self.chat_content = ChatContent()
         self.lista_content = ListaContent()
-        # self.macros_content = MacrosContent()
+        self.macros_content = MacrosContent()
+        self.macros_content.macro_triggered.connect(self._on_macro_texto)
 
         self._content_map = {
             "chat": (self.chat_content, self.button1),
             "lista": (self.lista_content, self.button2),
-            # "macros": (self.macros_content, self.button3),
+            "macros": (self.macros_content, self.button3),
         }
 
         self.lista_content.conversation_selected.connect(self._abrir_conversacion)
@@ -182,6 +183,11 @@ class IslandWindow(QWidget):
             self.chat_content.focus_input()
         elif button_name == "lista":
             self.lista_content.refresh()
+
+    def _on_macro_texto(self, texto):
+        self.chat_content.insertar_texto(texto)
+        self.popup.set_content(self.chat_content)
+        self.chat_content.focus_input()
 
     def _abrir_conversacion(self, conv_id):
         self.chat_content.load_conversation(conv_id)
