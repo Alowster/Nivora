@@ -7,7 +7,6 @@ import config
 
 
 def create_svg_icon(svg_content):
-    """Convierte contenido SVG en un QIcon"""
     svg_bytes = QByteArray(svg_content.encode())
     renderer = QSvgRenderer(svg_bytes)
     pixmap = QPixmap(config.ICON_SIZE, config.ICON_SIZE)
@@ -19,7 +18,6 @@ def create_svg_icon(svg_content):
 
 
 def create_icon_button(svg_content, style_class, name, callback=None):
-    """Crea un botón con icono basado en los estándares de config"""
     button = QPushButton()
     button.setFixedSize(config.BUTTON_SIZE, config.BUTTON_SIZE)
     button.setProperty("class", style_class)
